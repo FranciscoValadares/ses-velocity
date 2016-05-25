@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Mome - Yeni Üye Eposta Kayıt</title>
+</head>
+<body bgcolor="#FFFFFF" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%" align="center">
+    <tr>
+        <td></td>
+        <td width="600" valign="top" style="padding-top:50px;">
+            <!-- content starts -->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding: 0; font-family: 'Arial', sans-serif;">
+                <tr> <!-- header -->
+
+                </tr> <!-- /header -->
+                <tr>
+                    <td valign="top" style="padding-top: 30px; padding-right: 50px; padding-left: 30px; font-size: 17px; line-height: 25px; color: #5f6368;">
+                        Thank you
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top" style="padding-top: 40px; padding-right: 30px; padding-bottom: 50px; padding-left: 30px;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 3px solid #dadbdc; border-radius: 10px;">
+                            <tr>
+                                <td valign="top" style="padding-top: 30px; padding-right: 30px; padding-left: 30px; font-size: 17px; line-height: 25px; color: #5f6368;">
+                                    <span style="color: #090b0f; font-weight: bold;">${toEmail}</span> please click to link below to be able register your email
+                                </td>
+                            </tr>
+                            <tr>
+                                <td valign="top" style="padding-top: 30px; padding-right: 30px; padding-bottom: 30px; padding-left: 30px;">
+                                    <table cellspacing="0" cellpadding="0" width="100%" style="padding: 0px;">
+                                        <tr>
+                                            <td align="center" width="100%" height="60" bgcolor="#2696fe" style="-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; color: #ffffff; display: block;">
+                                                <a href="${actionUrl}" style="font-size: 17px; font-weight: bold; font-family: Helvetica, Arial, sans-serif; text-decoration: none; line-height: 60px; width:100%; display:inline-block;">
+                                                    <span style="color: #ffffff;">Register!</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr> <!-- footer -->
+                    <td valign="top">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top" align="center" style="padding-bottom: 50px; color: #959699; font-size: 11px; line-height: 16px;">
+                       MyCompany
+                    </td>
+                </tr> <!-- /footer -->
+            </table>
+            <!-- content ends -->
+        </td>
+        <td></td>
+    </tr>
+</table>
+
+</body>
+</html>

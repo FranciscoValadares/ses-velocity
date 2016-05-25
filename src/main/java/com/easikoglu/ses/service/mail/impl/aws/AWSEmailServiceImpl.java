@@ -1,4 +1,4 @@
-package com.easikoglu.ses.service.aws.impl;
+package com.easikoglu.ses.service.mail.impl.aws;
 
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.regions.Region;
@@ -7,16 +7,20 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.RawMessage;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.easikoglu.ses.model.EmailTemplate;
-import com.easikoglu.ses.service.aws.EmailService;
+import com.easikoglu.ses.service.mail.EmailService;
+import com.easikoglu.ses.service.mail.impl.mock.MockEmailServiceImpl;
 import com.easikoglu.ses.service.template.EmailTemplateService;
 import com.easikoglu.ses.util.AwsPropertiesReader;
 import com.easikoglu.ses.util.EmailProperties;
 import com.easikoglu.ses.util.EmailType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -38,6 +42,10 @@ import java.util.Properties;
 @Service
 @Profile("prod")
 public class AWSEmailServiceImpl implements EmailService {
+
+
+    private static final Log LOG = LogFactory.getLog(MockEmailServiceImpl.class);
+
 
     @Autowired
     private EmailTemplateService emailTemplateService;
@@ -63,7 +71,7 @@ public class AWSEmailServiceImpl implements EmailService {
         }
 
 
-        // Instantiate an Amazon SES client, which will make the service call with the supplied AWS credentials.
+        // initialize a client, which will make the service call with AWS credentials.
         awsClient = new AmazonSimpleEmailServiceClient(credentials);
         awsRegion = Region.getRegion(AWS_REGION);
         awsClient.setRegion(awsRegion);
@@ -75,35 +83,11 @@ public class AWSEmailServiceImpl implements EmailService {
         Session session = Session.getDefaultInstance(new Properties());
 
         try {
-            MimeMessage message = new MimeMessage(session);
-
-            message.setSubject(template.getMailSubject(), "UTF-8");
-
-
-            message.setFrom(new InternetAddress(template.getMailFrom(),template.getCompanyName()));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailProperties.getToEmail()));
-            // Cover wrap
-            MimeBodyPart wrap = new MimeBodyPart();
-
-            // Alternative TEXT/HTML content
-            MimeMultipart cover = new MimeMultipart("alternative");
-            MimeBodyPart html = new MimeBodyPart();
-            cover.addBodyPart(html);
-
-            wrap.setContent(cover);
-
-            MimeMultipart content = new MimeMultipart("related");
-            message.setContent(content);
-            content.addBodyPart(wrap);
-
-            final String translatedTemplate = emailTemplateService.getTranslatedTemplate(template, emailProperties);
-
-
-            html.setContent(translatedTemplate, "text/html; charset=UTF-8");
+            MimeMessage message = this.getMimeMessage(template, emailProperties, session);
 
 
             try {
-                System.out.println("Attempting to send an email through Amazon SES by using the AWS SDK for Java...");
+                LOG.info("Attempting to send an email through Amazon SES by using the AWS SDK for Java...");
 
                 // Send the email.
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -112,25 +96,54 @@ public class AWSEmailServiceImpl implements EmailService {
 
                 SendRawEmailRequest rawEmailRequest = new SendRawEmailRequest(rawMessage);
                 awsClient.sendRawEmail(rawEmailRequest);
-                System.out.println("Email sent!");
+                LOG.info("Email sent!");
                 return true;
             } catch (Exception ex) {
                 //try again
-                ex.printStackTrace();
+                 LOG.error("general exception, not sent : " + ex.getMessage());
 
             }
         } catch (MessagingException e) {
-            e.printStackTrace();
+             LOG.error("message exception, check content");
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+             LOG.error("message exception, check content" + e.getMessage());
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            LOG.error("message exception, check content" + e.getMessage());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            LOG.error("message exception, check content" + e.getMessage());
         }
         return false;
 
 
+    }
+
+    private MimeMessage getMimeMessage(EmailTemplate template, EmailProperties emailProperties, Session session) throws MessagingException, UnsupportedEncodingException, InvocationTargetException, IllegalAccessException {
+        MimeMessage message = new MimeMessage(session);
+
+        message.setSubject(template.getMailSubject(), "UTF-8");
+
+
+        message.setFrom(new InternetAddress(template.getMailFrom(),template.getCompanyName()));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailProperties.getToEmail()));
+        // Cover wrap
+        MimeBodyPart wrap = new MimeBodyPart();
+
+        // Alternative TEXT/HTML content
+        MimeMultipart cover = new MimeMultipart("alternative");
+        MimeBodyPart html = new MimeBodyPart();
+        cover.addBodyPart(html);
+
+        wrap.setContent(cover);
+
+        MimeMultipart content = new MimeMultipart("related");
+        message.setContent(content);
+        content.addBodyPart(wrap);
+
+        final String translatedTemplate = emailTemplateService.getTranslatedTemplate(template, emailProperties);
+
+
+        html.setContent(translatedTemplate, "text/html; charset=UTF-8");
+        return message;
     }
 
     @Override
@@ -139,9 +152,6 @@ public class AWSEmailServiceImpl implements EmailService {
         sendEmail(emailTemplateService.findByEmailType(emailType.toString()), emailProperties);
     }
 
-    @Override
-    public boolean sendEmail(EmailProperties emailProperties, EmailType emailType) {
-        return sendEmail(emailTemplateService.findByEmailType(emailType.toString()), emailProperties);
-    }
+
 
 }

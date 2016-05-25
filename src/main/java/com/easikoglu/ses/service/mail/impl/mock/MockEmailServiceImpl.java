@@ -1,7 +1,7 @@
-package com.easikoglu.ses.service.aws.impl.mock;
+package com.easikoglu.ses.service.mail.impl.mock;
 
 
-import com.easikoglu.ses.service.aws.EmailService;
+import com.easikoglu.ses.service.mail.EmailService;
 import com.easikoglu.ses.util.EmailProperties;
 import com.easikoglu.ses.util.EmailType;
 import org.apache.commons.logging.Log;
@@ -25,11 +25,6 @@ public class MockEmailServiceImpl implements EmailService {
         LOG.info("test mail service");
     }
 
-    @Override
-    public boolean sendEmail(EmailProperties emailProperties, EmailType emailType) {
-        LOG.info("test mail service");
-        return true;
-    }
 
 
 }
